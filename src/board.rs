@@ -1,5 +1,3 @@
-use std::result;
-
 use crate::piece::{Color, Piece, PieceType};
 
 type Coordinate = (u8, u8);
@@ -76,8 +74,8 @@ impl Board {
             .as_str(),
             self.build_castle_fen().as_str(),
             coordinate_to_notation(self.en_passant).as_str(),
-            self.halfmoves.to_string().as_str(),
             self.fullmoves.to_string().as_str(),
+            self.halfmoves.to_string().as_str(),
         ]
         .join(" ")
     }
@@ -90,11 +88,14 @@ impl Board {
         if self.w_castle_queenside {
             result.push('Q');
         }
-        if self.w_castle_kingside {
+        if self.b_castle_kingside {
             result.push('k');
         }
-        if self.w_castle_queenside {
+        if self.b_castle_queenside {
             result.push('q');
+        }
+        if result.is_empty() {
+            result.push('-');
         }
 
         result
@@ -104,12 +105,20 @@ impl Board {
         let mut result = Vec::new();
         for rank in &self.squares {
             let mut s = String::new();
+            let mut empty_cnt = 0;
             for col in rank {
                 if let Some(p) = col {
+                    if empty_cnt != 0 {
+                        s.push_str(empty_cnt.to_string().as_str());
+                        empty_cnt = 0;
+                    }
                     s.push_str(piece_to_fen(p).as_str());
                 } else {
-                    s.push('1');
+                    empty_cnt += 1;
                 }
+            }
+            if empty_cnt != 0 {
+                s.push_str(empty_cnt.to_string().as_str());
             }
             result.push(s);
         }
@@ -250,11 +259,19 @@ mod tests {
     }
     #[test]
     fn fen_convert() {
-        let board =
-            Board::from_fen("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1").unwrap();
-        assert_eq!(
-            board.to_fen().as_str(),
-            "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
-        );
+        let test_fens = vec![
+            "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
+            "rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq e3 0 1",
+            "rnbqkbnr/pp1ppppp/8/2p5/4P3/8/PPPP1PPP/RNBQKBNR w KQkq c6 0 2",
+            "rnbqkbnr/pp1ppppp/8/2p5/4P3/5N2/PPPP1PPP/RNBQKB1R b KQkq - 1 2",
+            "8/8/8/4p1K1/2k1P3/8/8/8 b - - 0 1",
+            "4k2r/6r1/8/8/8/8/3R4/R3K3 w Qk - 0 1",
+            "4k3/8/8/8/8/8/4P3/4K3 w - - 5 39",
+            "7N/1b3RN1/7k/6b1/KBp4p/5q2/6Q1/7n w - - 0 1",
+        ];
+        for fen in test_fens {
+            let board = Board::from_fen(fen).unwrap();
+            assert_eq!(board.to_fen(), fen);
+        }
     }
 }
