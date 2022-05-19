@@ -1,3 +1,5 @@
+use std::fmt;
+
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub struct Piece {
     color: Color,
@@ -29,5 +31,55 @@ impl Piece {
 
     pub fn get_type(&self) -> PieceType {
         self.piece
+    }
+}
+
+impl fmt::Display for Piece {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        let s = match self.piece {
+            PieceType::Pawn => {
+                if self.color == Color::White {
+                    "♙"
+                } else {
+                    "♟"
+                }
+            }
+            PieceType::Knight => {
+                if self.color == Color::White {
+                    "♘"
+                } else {
+                    "♞"
+                }
+            }
+            PieceType::Bishop => {
+                if self.color == Color::White {
+                    "♗"
+                } else {
+                    "♝"
+                }
+            }
+            PieceType::Rook => {
+                if self.color == Color::White {
+                    "♖"
+                } else {
+                    "♜"
+                }
+            }
+            PieceType::Queen => {
+                if self.color == Color::White {
+                    "♕"
+                } else {
+                    "♛"
+                }
+            }
+            PieceType::King => {
+                if self.color == Color::White {
+                    "♔"
+                } else {
+                    "♚"
+                }
+            }
+        };
+        write!(f, "{}", s)
     }
 }

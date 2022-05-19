@@ -1,3 +1,5 @@
+use core::fmt;
+
 use crate::piece::{Color, Piece, PieceType};
 
 type Coordinate = (u8, u8);
@@ -123,6 +125,22 @@ impl Board {
             result.push(s);
         }
         result.join("/")
+    }
+}
+
+impl fmt::Display for Board {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        for row in &self.squares {
+            for piece in row {
+                if let Some(p) = piece {
+                    write!(f, " {} ", p)?;
+                } else {
+                    write!(f, " - ")?;
+                }
+            }
+            writeln!(f)?;
+        }
+        Ok(())
     }
 }
 
